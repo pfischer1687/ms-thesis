@@ -1,0 +1,4 @@
+# Ignore large datafiles used in Python analysis
+python-src/.ipynb_checkpoints
+python-src/data
+python-src/images

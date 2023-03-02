@@ -1,0 +1,102 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 2.7 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated as
+% required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+\sortlist[entry]{none/global/}
+  \entry{PhysRev.47.777}{article}{}
+    \name{author}{3}{}{%
+      {{hash=EA}{%
+         family={Einstein},
+         family_i={E\bibinitperiod},
+         given={A.},
+         given_i={A\bibinitperiod},
+      }}%
+      {{hash=PB}{%
+         family={Podolsky},
+         family_i={P\bibinitperiod},
+         given={B.},
+         given_i={B\bibinitperiod},
+      }}%
+      {{hash=RN}{%
+         family={Rosen},
+         family_i={R\bibinitperiod},
+         given={N.},
+         given_i={N\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {American Physical Society}%
+    }
+    \strng{namehash}{EA+1}
+    \strng{fullhash}{EAPBRN1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1103/PhysRev.47.777
+    \endverb
+    \field{issue}{10}
+    \field{pages}{777\bibrangedash 780}
+    \field{title}{Can Quantum-Mechanical Description of Physical Reality Be
+  Considered Complete?}
+    \verb{url}
+    \verb https://link.aps.org/doi/10.1103/PhysRev.47.777
+    \endverb
+    \field{volume}{47}
+    \field{journaltitle}{Phys. Rev.}
+    \field{year}{1935}
+    \warn{\item Invalid format of field 'month'}
+  \endentry
+
+  \entry{PhysRev.140.A1133}{article}{}
+    \name{author}{2}{}{%
+      {{hash=KW}{%
+         family={Kohn},
+         family_i={K\bibinitperiod},
+         given={W.},
+         given_i={W\bibinitperiod},
+      }}%
+      {{hash=SLJ}{%
+         family={Sham},
+         family_i={S\bibinitperiod},
+         given={L.\bibnamedelima J.},
+         given_i={L\bibinitperiod\bibinitdelim J\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {American Physical Society}%
+    }
+    \strng{namehash}{KWSLJ1}
+    \strng{fullhash}{KWSLJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1103/PhysRev.140.A1133
+    \endverb
+    \field{issue}{4A}
+    \field{pages}{A1133\bibrangedash A1138}
+    \field{title}{Self-Consistent Equations Including Exchange and Correlation
+  Effects}
+    \verb{url}
+    \verb https://link.aps.org/doi/10.1103/PhysRev.140.A1133
+    \endverb
+    \field{volume}{140}
+    \field{journaltitle}{Phys. Rev.}
+    \field{year}{1965}
+    \warn{\item Invalid format of field 'month'}
+  \endentry
+\endsortlist
+\endinput

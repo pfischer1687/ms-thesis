@@ -1,0 +1,187 @@
+\doublespacing
+
+\begin{lstlisting}[language=Python]
+import pandas as pd
+import numpy as np
+from typing import Tuple, List
+from scipy.optimize import curve_fit, root
+import scipy.integrate as integrate
+from scipy.special import eval_legendre
+from sympy import N, symbols, solve, exp
+from sympy.physics.wigner import wigner_3j, wigner_6j
+
+def vEff(r: float, prms: Tuple[float]) -> float:
+    """Return the two-body real space effective potential."""
+    
+    b1, b2, beta1, beta2 = prms
+    
+    return 1/r + b1*np.exp(-beta1*r) + b2*r**2*np.exp(-beta2*r)
+    
+def vK(k: int, prms: Tuple[float]) -> float:
+    """Return the V_k term of Wooten's formula for mapping a two-body, real space effective potential
+    to a Haldane pseudopotential."""
+    
+    coeff = (2*k+1)/2
+    integ = integrate.quad(lambda x: vEff(np.sqrt(2*(1-x)), prms)*eval_legendre(k, x), -1, 1)
+    
+    return coeff*integ[0]
+
+def wootenPP(qL: Tuple[float], prms: Tuple[float]) -> float:
+    """Return the value of the effective potential that has been mapped
+    to a Haldane pseudopotential via the Wooten formula."""
+    
+    q, l = qL
+    
+    coeff = (-1)**(2*q+l) * (2*q+1)**2/np.sqrt(q)
+    
+    # save terms in the sum as a list to be summed over
+    sumTerms = []
+    for k in range(int(2*q+1)):
+        # in the lowest Landau level l = Q
+        sumTerms.append(
+               vK(k, prms)*N(wigner_6j(l, q, q, k, q, q))*N(wigner_3j(q, k, q, -q, 0, q))**2)
+    
+    return coeff*sum(sumTerms)
+    
+def findRootWootenPP(prms: Tuple[float], args: List[float]) -> List[float]:
+    """Return the difference between the Coulomb and Landau level mixing-incorporated Haldane pseudopotentials
+    for the first nPrms odd m values so a root finding method can solve for the fitting parameters."""
+    
+    # need as many equations as there are parameters
+    nPrms = len(prms)
+    
+    # args input is [q, kappa, deltas[0:nPrms]]
+    q, kappa, deltas = args[0], args[1], args[2:nPrms+2]
+
+    res = []
+    for i in range(nPrms):
+        
+        # m odd
+        m = 2*i+1
+        
+        # L = 2Q-m in the lowest LL
+        qL = (q, 2*q-m)
+        
+        # Coulomb parameters
+        prms0 = ()
+        for j in range(nPrms):
+            prms0 = prms0 + (0.0,)
+        
+        # V_eff = V_Coulomb + kdV
+        llmPP = wootenPP(qL, prms0) + kappa * deltas[i]
+        
+        res.append(wootenPP(qL, prms) - llmPP)
+    
+    return res
+    
+def fittingPrms(args: List[float], prms0: Tuple[float]) -> Tuple[float]:
+    """Return the parameters that fit the effective potential to the Landau level mixing-incorporated Haldane
+    pseudopotential data."""
+    
+    # need as many equations as there are parameters
+    nPrms = len(prms0)
+    
+    # args input is [q, kappa, deltas[0:nPrms]]
+    q, kappa, deltas = args[0], args[1], args[2:nPrms+2]
+
+    # find roots
+    sol = root(findRootWootenPP, prms0, args=(args), method='hybr')
+    
+    return tuple(sol.x)
+    
+def vqlDF(q: float, kappa: float, prms: Tuple[float]) -> pd.DataFrame:
+    """Return a DataFrame containing the fitted Landau level mixing-incorporated Haldane pseudopotentials as a 
+    function of the single-particle relative angular momentum in the spherical geometry L."""
+
+    # need as many equations as there are parameters
+    nPrms = len(prms)
+    
+    # m can be any odd value up to 2Q in the lowest LL
+    mArray = list( range(1, int(2*q + 1), 2) )
+    
+    # generate PPs from fitted Park parameters
+    data = []
+    for m in mArray:
+        # L = 2Q - m in the lowest LL
+        qL = (q, 2*q - m)
+        data.append([qL[1], wootenPP(qL, prms)])
+    
+    # put in order of increasing L
+    data.reverse()
+    
+    return pd.DataFrame(data, columns = ['L', 'V_Q(L)'])
+    
+def b12Func(qKappa: Tuple[float], c1: float, c2: float, c3: float) -> float:
+    """Return the value of the Landau Level mixing-incorporated Haldane pseudopotential parameter function 
+    b_i(Q, kappa)."""
+    
+    q, kappa = qKappa
+    
+    return (c1*q**c2 + c3)*kappa
+    
+def b_fun_prms(dfPrms: pd.DataFrame, prms0: List[float], b1: bool=False, b2: bool=False) -> np.ndarray:
+    """Return the parameters c_i for the Landau Level mixing-incorporated Haldane pseudopotential parameter function 
+    b_i(Q, kappa)."""
+    
+    try:
+        if b1 and not b2:
+            col = 'b1'
+        elif b2 and not b1:
+            col = 'b2'
+        else:
+            raise ValueError
+
+        # make DataFrame of values for Q>6 since the fit will be more accurate and we are interested in the therm lim
+        dfTemp = dfPrms.query('(Q > 6.0) & (kappa > 0.0)')
+        dfTemp.reset_index(drop=True, inplace=True)
+
+        x = ( dfTemp['Q'].to_list(), dfTemp['kappa'].to_list() )
+        y = dfTemp[col].to_list()
+
+        prms, pcov = curve_fit(b12Func, x, y, prms0)
+        
+        return prms
+
+    except ValueError:
+        return 'ValueError: please input \'b1=True\' xor \'b2=True\'.'
+        
+def beta12Func(q: float, c1: float, c2: float, c3: float) -> float:
+    """Return the value of the Landau Level mixing-incorporated Haldane pseudopotential parameter function
+    beta_i(Q, kappa)."""
+    
+    return c1*q**c2 + c3
+    
+def beta_fun_prms(dfPrms: pd.DataFrame, prms0: List[float], beta1: bool=False, beta2: bool=False) -> np.ndarray:
+    """Return the parameters c_i for the Landau Level mixing-incorporated Haldane pseudopotential parameter function
+    beta_i(Q, kappa)."""
+    
+    try:
+        if beta1 and not beta2:
+            col = 'beta1'
+        elif beta2 and not beta1:
+            col = 'beta2'
+        else:
+            raise ValueError
+
+        # make DataFrame of values for Q>6 since the fit will be more accurate and we are interested in the therm lim
+        dfTemp = dfPrms.query('(Q > 6.0) & (kappa > 0.0)')
+        dfTemp.reset_index(drop=True, inplace=True)
+
+        x = dfTemp['Q'].to_list()
+        y = dfTemp[col].to_list()
+
+        prms, pcov = curve_fit(beta12Func, x, y, prms0)
+        return prms
+
+    except ValueError:
+        return 'ValueError: please input \'beta1=True\' xor \'beta2=True\'.'
+        
+def rangeFunc(n, c1, c2, c3):
+    """Return the RANGE value."""
+    
+    res = c1*n**c2 + c3
+    
+    return res
+\end{lstlisting}
+    
+\singlespacing

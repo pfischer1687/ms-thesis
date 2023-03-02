@@ -1,0 +1,345 @@
+\documentclass[12pt,oneside,letterpaper,chapterprefix=on,numbers=noenddot]{scrbook}
+%%% page set-up 
+\usepackage[margin=1in,includefoot,heightrounded]{geometry} % 1 inch margins including page numbers
+%\usepackage{mathptmx} % times new roman
+\usepackage{float} % Allows for adjustment of floating objects
+\usepackage{diagbox} % Allows diagonal box in tables
+\usepackage{booktabs} % Nicer lines in tables
+\usepackage{setspace} % double spacing in text, not captions or footnotes
+\usepackage{indentfirst} % indent first paragraph
+\setlength{\parindent}{2em} % adjust indentation 
+\usepackage[document]{ragged2e} % ragged right
+\setlength{\RaggedRightParindent}{\parindent}
+\usepackage{subcaption}
+\usepackage[export]{adjustbox}
+\usepackage{comment} % a convenient package
+\pagestyle{plain} % remove headers 
+
+\usepackage[justification=raggedright,singlelinecheck=false,labelsep=period]{caption} % Captions left justify
+
+% Class scrbook Error: undefined old font command `\bf'
+\DeclareOldFontCommand{\bf}{\normalfont\bfseries}{\mathbf}
+
+\setkomafont{captionlabel}{\bfseries} % make caption label bold
+\setkomafont{caption}{\bfseries \boldmath} % make caption bold
+\setcapindent{0pt} % removes hanging indent from captions
+\usepackage{caption}
+\usepackage[justification=centering]{subcaption}
+\captionsetup{figurename=FIGURE,tablename=TABLE}
+\usepackage{amssymb} % Usefull math symbols and font styles
+\usepackage{rotating}
+
+\setlength{\jot}{10pt} % Changes the vertical spacing between equations
+
+
+%%% bibliography modifications
+%\usepackage[square,sort,comma,numbers]{natbib}
+
+\usepackage[backend=bibtex,style=phys,articletitle=false,biblabel=brackets,chaptertitle=false,pageranges=false]{biblatex}
+\addbibresource{references.bib}
+\DeclareFieldFormat{titlecase}{#1}
+\defbibenvironment{bibliography}
+{\list
+	{}
+	{\setlength{\leftmargin}{2\bibhang}%\addtolength{\leftmargin}{\dimexpr\labelwidth+\labelsep\relax}%
+		\setlength{\itemindent}{-\leftmargin}%
+		\setlength{\itemsep}{\bibitemsep}%
+		\setlength{\parsep}{\bibparsep}}}
+{\endlist}
+{\item\printtext[labelnumberwidth]{%
+		\printfield{labelprefix}%
+		\printfield{labelnumber}}%
+	\addspace \ \ }
+%\setlength{\bibsep}{\baselineskip} % line spacing between citations
+\setlength{\bibhang}{2em} %%% hanging indentation
+%\makeatletter
+%\renewcommand\NAT@bibsetnum[1]{\settowidth\labelwidth{\@biblabel{#1}}%
+%   \setlength{\leftmargin}{\bibindent}\addtolength{\leftmargin}{\dimexpr\labelwidth+\labelsep\relax}%
+%   \setlength{\itemindent}{-\bibindent}%
+%   \setlength{\listparindent}{\itemindent}
+%\setlength{\itemsep}{\bibsep}\setlength{\parsep}{\z@}%
+%   \ifNAT@openbib
+%     \addtolength{\leftmargin}{\bibindent}%
+%     \setlength{\itemindent}{-\bibindent}%
+%     \setlength{\listparindent}{\itemindent}%
+%     \setlength{\parsep}{0pt}%
+%   \fi
+%}
+%\makeatother
+
+%% extra code for getting the correct line spacing after references title
+\let\oldbibliography\bibliography% Store \bibliography in \oldbibliography
+\renewcommand{\bibliography}[1]{{%
+  \let\chapter\section% Copy \section over \chapter
+  \oldbibliography{#1}}}% Old \bibliography
+  
+%\renewcommand\bibname{References}
+%\bibliography{references}
+%\bibliographystyle{IEEEtran}
+
+% Keep bib items from splitting across pages
+\patchcmd{\bibsetup}{\interlinepenalty=5000}{\interlinepenalty=10000}{}{}
+
+
+%%% uppercase chapters
+\makeatletter
+%\renewcommand\sectionlinesformat[4]{%
+%  \@hangfrom{\hskip#2 #3}{\MakeUppercase{#4}}%
+%}
+\renewcommand\chapterlinesformat[3]{%
+  \@hangfrom{#2}{\MakeUppercase{#3}}%
+}
+\makeatother
+\renewcommand\chapterlineswithprefixformat[3]{%
+  \MakeUppercase{#2#3}%
+}
+
+%%% continuous table and figure numbering
+\usepackage{chngcntr}
+\counterwithout{figure}{chapter}
+\counterwithout{table}{chapter}
+
+%%% section titles
+\setkomafont{section}{\normalsize \boldmath} 
+\RedeclareSectionCommand[
+  beforeskip=0pt,
+  afterskip=0.01pt]{section}
+  
+\setkomafont{subsection}{\normalsize  \boldmath} 
+\RedeclareSectionCommand[
+  beforeskip=0pt,
+  afterskip=0.01pt]{subsection}
+
+%%% remove indentation from captions
+\usepackage{etoolbox}
+\AtBeginEnvironment{figure}{\setlength{\RaggedRightParindent}{0em}}
+\AtBeginEnvironment{table}{\setlength{\RaggedRightParindent}{0em}}
+%\patchcmd{\thebibliography}{\chapter*}
+
+
+%%% modify table of contents
+\usepackage[titles]{tocloft}
+\setcounter{tocdepth}{0}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\cftchapfont}{\mdseries}
+\renewcommand{\cftchappagefont}{\mdseries}
+\setlength{\cftbeforetoctitleskip}{0pt} % keep at 1 inch margin 
+\setlength{\cftaftertoctitleskip}{0pt} % keep the double spacing
+% \renewcommand*\contentsname{TABLE OF CONTENTS} % rename contents
+\renewcommand{\cfttoctitlefont}{\hspace*{\fill}\normalsize\bfseries} % keep consistent font size
+\renewcommand{\cftaftertoctitle}{\hspace*{\fill}} % center title
+\KOMAoptions{toc=chapterentrydotfill} % dotted chapter entries
+\setkomafont{chapterentry}{} % make chapter titles not bold
+%\addtokomafont{chapterentrypagenumber}{\mdseries} % make page numbers not bold
+%%% indents numbered chapters
+\RedeclareSectionCommand[tocnumwidth=3.5em]{chapter}
+
+
+\cftsetindents{section}{4.5em}{2.0em}
+\cftsetindents{subsection}{5.3em}{2.8em}
+
+\renewcommand\addchaptertocentry[2]{%
+  \ifstr{#1}{}{%
+    \addtocentrydefault{chapter}{#1}{#2}%
+  }{%
+    \addtocentrydefault{chapter}{\hspace*{2em}#1.}{#2}%
+}}
+
+
+%%% list of tables
+\setlength{\cftbeforelottitleskip}{0pt} % keep at 1 inch margin
+\setlength{\cftafterlottitleskip}{0pt} % keep the double spacing
+\renewcommand*\listtablename{LIST OF TABLES} % rename contents
+\renewcommand{\cftlottitlefont}{\hspace*{\fill}\normalsize\bfseries} % keep consistent font size
+\renewcommand{\cftafterlottitle}{\hspace*{\fill}} % center title
+\setlength{\cfttabindent}{0pt}  % remove indentation from tables in lot
+
+%%% list of figures
+\setlength{\cftbeforeloftitleskip}{0pt} % keep at 1 inch margin
+\setlength{\cftafterloftitleskip}{0pt} % keep the double spacing
+\renewcommand*\listfigurename{LIST OF FIGURES} % rename contents
+\renewcommand{\cftloftitlefont}{\hspace*{\fill}\normalsize\bfseries} % keep consistent font size
+\renewcommand{\cftafterloftitle}{\hspace*{\fill}} % center title
+\setlength{\cftfigindent}{0.635cm}  % Indentation from figures in lof
+
+%%% set up appendix
+\usepackage[page,toc,title]{appendix}
+\renewcommand{\appendixtocname}{APPENDICES}
+%\usepackage[toc,title]{appendix}
+%\renewcommand{\appendixtocname}{APPENDIX: EXAMPLE OF AN APPENDIX}
+
+%%% Figure packages
+\usepackage{graphicx}
+\graphicspath{ {figures/} }
+\usepackage{wrapfig}
+\usepackage{pdfpages}
+\usepackage{subcaption} % allows side by side figures
+\usepackage{amsmath}
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks,
+	citecolor=black,
+	linkcolor=black,
+	urlcolor=black}
+
+%\usepackage[numbered,framed]{matlab-prettifier} %specifically for matlab
+%\usepackage{listings} %used to include code (add this AFTER matlab-pretifier if using matlab-prettifier)
+
+% Python code prettifier
+\usepackage{listings}
+\usepackage{xcolor}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+%ADDED COMMANDS
+\newcommand{\BEq}{\begin{eqnarray}}
+\newcommand{\EEq}{\end{eqnarray}}
+\newcommand{\BEqn}{\begin{eqnarray*}}
+\newcommand{\EEqn}{\end{eqnarray*}}
+\usepackage{braket}
+\usepackage{mathtools}
+\usepackage{sectsty}
+\sectionfont{\centering}
+\usepackage{grffile}
+
+
+%%% chapter titles
+\let\raggedchapter\centering
+\RedeclareSectionCommand[
+  beforeskip=0pt,
+  afterskip=0pt]{chapter}
+\setkomafont{disposition}{\bfseries\normalsize}
+\setkomafont{chapter}{\normalsize}
+\usepackage{hanging}
+%%%-------------------------------------------------------------------------------%%%
+%%%-------------------------------------------------------------------------------%%%
+%%%-------------------------------------------------------------------------------%%%
+
+\bibliography{references}
+
+% List of symbols and abbreviations
+\usepackage{enumitem}
+\newlist{abbrv}{itemize}{1}
+\setlist[abbrv,1]{label=,labelwidth=1in,align=parleft,itemsep=0.1\baselineskip,leftmargin=!}
+
+% Maintain uniform double spacing after section titles
+\usepackage{titlesec}
+\titlespacing*{\section}{0pt}{0\baselineskip}{0\baselineskip}
+\titlespacing*{\subsection}{0pt}{0\baselineskip}{0\baselineskip}
+
+\begin{document}
+
+% Maintain uniform double spacing between figures and text
+\setlength{\belowcaptionskip}{-1.75\baselineskip}
+\setlength{\intextsep}{8pt}
+
+\renewcommand{\contentsname}{TABLE OF CONTENTS}
+
+\frontmatter
+	
+\input{title}
+
+\setcounter{page}{2} % start page number with 2
+
+\chapter{ABSTRACT}\label{ch:abstr}
+\input{abstract}
+
+\chapter{ACKNOWLEDGMENTS}\label{ch:ackn}
+\input{acknowledgments}
+
+\clearpage
+\tableofcontents
+
+% \clearpage
+% \renewcommand{\cfttabaftersnum}{.}
+% \listoftables
+% \addcontentsline{toc}{chapter}{LIST OF TABLES}
+
+\clearpage
+\renewcommand{\cftfigaftersnum}{.}
+\setlength\cftbeforefigskip{\baselineskip}
+\listoffigures
+\addcontentsline{toc}{chapter}{LIST OF FIGURES}
+
+\chapter{LIST OF SYMBOLS AND ABBREVIATIONS}\label{ch:symb}
+\input{symb_and_abbr}
+ 
+\mainmatter
+
+\chapter{INTRODUCTION}\label{ch:1}
+\input{chapters/ch1}
+
+\chapter{CALCULATIONS}\label{ch:2}
+\input{chapters/ch2}
+
+\chapter{BENCHMARKS}\label{ch:3}
+\input{chapters/ch3}
+
+\chapter{CONCLUSION}\label{ch:conclusion}
+\input{chapters/conclusion}
+
+\clearpage
+\vspace*{\fill} 
+\begin{center}
+\textbf{APPENDICES}
+\end{center}
+\vspace*{\fill}
+\addcontentsline{toc}{chapter}{APPENDICES}
+\clearpage
+
+\addcontentsline{toc}{chapter}{\hspace*{2em}\thechapter. USER-DEFINED PYTHON FUNCTIONS}
+\input{appendixAcover}
+\chapter*{} % Left blank for no section headers
+\addtocounter{chapter}{1}
+\setcounter{chapter}{1}% Equivalent to "letter A"
+\renewcommand{\thechapter}{\Alph{chapter}}%
+\input{chapters/appendixA}
+
+\input{appendixBcover}
+\addcontentsline{toc}{chapter}{\hspace*{2em}\thechapter. REAL SPACE EFFECTIVE POTENTIAL}
+\chapter*{} % Left blank for no section headers
+\addtocounter{chapter}{1}
+\input{chapters/appendixB}
+
+\input{appendixCcover}
+\addcontentsline{toc}{chapter}{\hspace*{2em}\thechapter. MONTE CARLO RANGE VALUES}
+\chapter*{} % Left blank for no section headers
+\addtocounter{chapter}{1}
+\input{chapters/appendixC}
+
+\renewcommand{\bibname}{References}
+
+\clearpage
+\addcontentsline{toc}{chapter}{REFERENCES}
+\vspace*{\fill} 
+\centering 
+\textbf{REFERENCES}
+\vspace*{\fill}
+\clearpage
+
+\doublespacing
+\printbibliography
+
+
+\end{document}
